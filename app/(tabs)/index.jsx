@@ -1,13 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   Dimensions,
   FlatList,
   Image,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -27,31 +28,42 @@ const categories = [
   {
     label: "Vegetables & Fruits",
     icon: require("../../assets/images/cat-veg.png"),
+    route: "vegetables",
   },
   {
     label: "Dairy & Breakfast",
     icon: require("../../assets/images/cat-dairy.jpeg"),
+    route: "dairy",
   },
   {
     label: "Cold Drinks & Juices",
     icon: require("../../assets/images/cat-drinks.jpeg"),
+    route: "drinks",
   },
   {
     label: "Instant & Frozen Food",
     icon: require("../../assets/images/cat-foods.jpeg"),
+    route: "foods",
   },
-  { label: "Tea & Coffee", icon: require("../../assets/images/cat-tea.jpeg") },
+  {
+    label: "Tea & Coffee",
+    icon: require("../../assets/images/cat-tea.jpeg"),
+    route: "tea",
+  },
   {
     label: "Atta, Rice & Dal",
     icon: require("../../assets/images/cat-atta.png"),
+    route: "atta",
   },
   {
     label: "Masala, Oil & Dry Fruits",
     icon: require("../../assets/images/cat-masala.jpeg"),
+    route: "masala",
   },
   {
     label: "Chicken, Meat & Fish",
     icon: require("../../assets/images/cat-chicken.jpeg"),
+    route: "chicken",
   },
 ];
 
@@ -74,8 +86,29 @@ const bestDeals = [
 ];
 
 export default function HomeScreen() {
+  const router = useRouter();
+
+  const CategoryCard = ({ item }) => {
+    const isVegetables =
+      item.route === "vegetables" ||
+      item.label.toLowerCase().includes("vegetable");
+    return (
+      <TouchableOpacity
+        style={styles.categoryCard}
+        onPress={
+          isVegetables
+            ? () => router.push("/category/vegetables")
+            : () => router.push(`/category/${item.route}`)
+        }
+      >
+        <Image source={item.icon} style={styles.categoryIcon} />
+        <Text style={styles.categoryLabel}>{item.label}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -104,19 +137,19 @@ export default function HomeScreen() {
 
         {/* Search Bar */}
         <View style={styles.searchRow}>
-          <View style={styles.searchInputWrapper}>
+          <TouchableOpacity
+            style={styles.searchInputWrapper}
+            activeOpacity={0.85}
+            onPress={() => router.push("/search")}
+          >
             <Ionicons
               name="search-outline"
               size={20}
               color={COLORS.textSecondary}
               style={{ marginLeft: 10 }}
             />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search"
-              placeholderTextColor={COLORS.textSecondary}
-            />
-          </View>
+            <Text style={styles.searchInput}>Search</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.filterBtn}>
             <Ionicons name="options-outline" size={24} color="#fff" />
           </TouchableOpacity>
@@ -131,10 +164,7 @@ export default function HomeScreen() {
         </View>
         <View style={styles.categoryGrid}>
           {categories.map((cat, idx) => (
-            <View style={styles.categoryItem} key={idx}>
-              <Image source={cat.icon} style={styles.categoryIcon} />
-              <Text style={styles.categoryLabel}>{cat.label}</Text>
-            </View>
+            <CategoryCard key={idx} item={cat} />
           ))}
         </View>
 
@@ -156,8 +186,10 @@ export default function HomeScreen() {
 
         {/* Best Deal */}
         <View style={styles.sectionRow}>
-          <Text style={styles.sectionTitle}>Best Deal</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/bestdeal")}>
+            <Text style={styles.sectionTitle}>Best Deal</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/bestdeal")}>
             <Text style={styles.sectionLink}>See All</Text>
           </TouchableOpacity>
         </View>
@@ -184,7 +216,7 @@ export default function HomeScreen() {
         />
       </ScrollView>
       {/* Bottom Tab Bar would be handled by your tab navigator */}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -242,7 +274,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: COLORS.textPrimary,
+    color: COLORS.textSecondary,
     paddingHorizontal: 10,
     backgroundColor: "transparent",
   },
@@ -278,7 +310,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 18,
   },
-  categoryItem: {
+  categoryCard: {
     width: (width - 64) / 4,
     alignItems: "center",
     marginBottom: 18,

@@ -1,9 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
   Image,
+  Modal,
   Platform,
   StyleSheet,
   Text,
@@ -26,96 +28,173 @@ const COLORS = {
 
 export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading] = useState(false);
   const router = useRouter();
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+
+  const handleLogin = () => {
+    setConfirmModalVisible(true);
+  };
+
+  const handleConfirmNext = () => {
+    setConfirmModalVisible(false);
+    router.replace("/(tabs)");
+  };
 
   return (
-    <View style={styles.container}>
-      {/* Logo */}
-      <Image
-        source={require("../assets/images/logo.png")}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-
-      {/* Welcome Text */}
-      <Text style={styles.title}>Welcome Back</Text>
-      <Text style={styles.subtitle}>
-        Log in to your account using email{"\n"}or social networks
-      </Text>
-
-      {/* Social Buttons */}
-      <TouchableOpacity style={styles.socialBtn}>
-        <Ionicons
-          name="logo-apple"
-          size={22}
-          color="#222"
-          style={styles.socialIcon}
+    <LinearGradient
+      colors={["#e8f5e9", "#fff"]}
+      style={{ flex: 1 }}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      <View style={styles.container}>
+        {/* Logo */}
+        <Image
+          source={require("../assets/images/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
         />
-        <Text style={styles.socialText}>Login with Apple</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.socialBtn}>
-        <Ionicons
-          name="logo-google"
-          size={22}
-          color="#EA4335"
-          style={styles.socialIcon}
-        />
-        <Text style={styles.socialText}>Login with Google</Text>
-      </TouchableOpacity>
 
-      {/* Divider */}
-      <View style={styles.dividerRow}>
-        <View style={styles.divider} />
-        <Text style={styles.dividerText}>Or continue with social account</Text>
-        <View style={styles.divider} />
-      </View>
+        {/* Welcome Text */}
+        <Text style={styles.title}>Welcome Back</Text>
+        <Text style={styles.subtitle}>
+          Log in to your account using email{"\n"}or social networks
+        </Text>
 
-      {/* Input Fields */}
-      <TextInput
-        style={styles.input}
-        placeholder="Phone Number"
-        placeholderTextColor={COLORS.textSecondary}
-      />
-      <View style={styles.inputRow}>
-        <TextInput
-          style={[styles.input, { flex: 1, marginBottom: 0 }]}
-          placeholder="Password"
-          placeholderTextColor={COLORS.textSecondary}
-          secureTextEntry={!showPassword}
-        />
-        <TouchableOpacity
-          onPress={() => setShowPassword((prev) => !prev)}
-          style={styles.eyeBtn}
-        >
+        {/* Social Buttons */}
+        <TouchableOpacity style={styles.socialBtn}>
           <Ionicons
-            name={showPassword ? "eye-off-outline" : "eye-outline"}
+            name="logo-apple"
             size={22}
-            color={COLORS.textSecondary}
+            color="#222"
+            style={styles.socialIcon}
           />
+          <Text style={styles.socialText}>Login with Apple</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.socialBtn}>
+          <Ionicons
+            name="logo-google"
+            size={22}
+            color="#EA4335"
+            style={styles.socialIcon}
+          />
+          <Text style={styles.socialText}>Login with Google</Text>
+        </TouchableOpacity>
+
+        {/* Divider */}
+        <View style={styles.dividerRow}>
+          <View style={styles.divider} />
+          <Text style={styles.dividerText}>
+            Or continue with social account
+          </Text>
+          <View style={styles.divider} />
+        </View>
+
+        {/* Input Fields */}
+        <TextInput
+          style={[styles.input, email.length > 0 && { borderColor: "#6BCB77" }]}
+          placeholder="Email Address"
+          placeholderTextColor={COLORS.textSecondary}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <View style={styles.inputRow}>
+          <TextInput
+            style={[
+              styles.input,
+              { flex: 1, marginBottom: 0 },
+              password.length > 0 && { borderColor: "#6BCB77" },
+            ]}
+            placeholder="Password"
+            placeholderTextColor={COLORS.textSecondary}
+            secureTextEntry={!showPassword}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity
+            onPress={() => setShowPassword((prev) => !prev)}
+            style={styles.eyeBtn}
+            accessibilityLabel={
+              showPassword ? "Hide password" : "Show password"
+            }
+          >
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={22}
+              color={COLORS.textSecondary}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Forgot Password */}
+        <TouchableOpacity style={styles.forgotBtn}>
+          <Text style={styles.forgotText}>Forgot Password ?</Text>
+        </TouchableOpacity>
+
+        {/* Login Button */}
+        <TouchableOpacity
+          style={[
+            styles.loginBtn,
+            (!email || !password) && { backgroundColor: "#b2dfdb" },
+          ]}
+          onPress={handleLogin}
+          disabled={!email || !password || loading}
+          activeOpacity={0.8}
+        >
+          {loading ? (
+            <Text style={styles.loginText}>Loading...</Text>
+          ) : (
+            <Text style={styles.loginText}>Login</Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Register Link */}
+        <View style={styles.registerRow}>
+          <Text style={styles.registerText}>Didn’t have an account? </Text>
+          <TouchableOpacity onPress={() => router.push("/siginin")}>
+            <Text style={styles.registerLink}>Register</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* Forgot Password */}
-      <TouchableOpacity style={styles.forgotBtn}>
-        <Text style={styles.forgotText}>Forgot Password ?</Text>
-      </TouchableOpacity>
-
-      {/* Login Button */}
-      <TouchableOpacity
-        style={styles.loginBtn}
-        onPress={() => router.replace("/(tabs)")}
+      <Modal
+        visible={confirmModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setConfirmModalVisible(false)}
       >
-        <Text style={styles.loginText}>Login</Text>
-      </TouchableOpacity>
-
-      {/* Register Link */}
-      <View style={styles.registerRow}>
-        <Text style={styles.registerText}>Didn’t have an account? </Text>
-        <TouchableOpacity onPress={() => router.push("/siginin")}>
-          <Text style={styles.registerLink}>Register</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.confirmModalCard}>
+            <Text style={styles.confirmTitle}>Verify Your Email Address</Text>
+            <Text style={styles.confirmEmail}>{email}</Text>
+            <Text style={styles.confirmDesc}>
+              We will send the authentication code to the email address you
+              entered.{"\n"}
+              Do you want to continue?
+            </Text>
+            <View style={styles.confirmActions}>
+              <TouchableOpacity
+                style={styles.confirmCancelBtn}
+                onPress={() => setConfirmModalVisible(false)}
+              >
+                <Text style={styles.confirmCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.confirmNextBtn}
+                onPress={handleConfirmNext}
+              >
+                <Text style={styles.confirmNextText}>Next</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </LinearGradient>
   );
 }
 
@@ -243,5 +322,73 @@ const styles = StyleSheet.create({
     color: COLORS.primaryGreen,
     fontWeight: "bold",
     fontSize: 14,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  confirmModalCard: {
+    backgroundColor: "#181F1B",
+    borderRadius: 20,
+    padding: 28,
+    alignItems: "center",
+    width: 320,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  confirmTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 10,
+  },
+  confirmEmail: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 10,
+  },
+  confirmDesc: {
+    fontSize: 14,
+    color: "#fff",
+    textAlign: "center",
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  confirmActions: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+  },
+  confirmCancelBtn: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: COLORS.primaryGreen,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: "center",
+  },
+  confirmCancelText: {
+    color: COLORS.primaryGreen,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  confirmNextBtn: {
+    backgroundColor: COLORS.primaryGreen,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: "center",
+  },
+  confirmNextText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

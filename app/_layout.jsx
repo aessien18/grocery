@@ -1,5 +1,10 @@
 import { Slot } from "expo-router";
+import { CartProvider } from "../components/CartContext";
 
 export default function RootLayout() {
-  return <Slot screenOptions={{ headerShown: false }} />;
+  return (
+    <CartProvider>
+      <Slot screenOptions={{ headerShown: false }} />
+    </CartProvider>
+  );
 }
